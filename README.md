@@ -6,15 +6,15 @@ Ett bibliotekshanteringssystem byggt i C# (.NET 10) som demonstrerar objektorien
 
 ```
 Bibliotekssystem_Arv_Komp/
-├── LibraryItem.cs      # Abstrakt basklass for alla biblioteksobjekt
-├── Book.cs             # Bok (arver LibraryItem)
-├── DVD.cs              # DVD (arver LibraryItem)
-├── Magazine.cs         # Tidskrift (arver LibraryItem)
-├── ISearchable.cs      # Interface for sokfunktionalitet
+├── LibraryItem.cs      # Abstrakt basklass för alla biblioteksobjekt
+├── Book.cs             # Bok (ärver LibraryItem)
+├── DVD.cs              # DVD (ärver LibraryItem)
+├── Magazine.cs         # Tidskrift (ärver LibraryItem)
+├── ISearchable.cs      # Interface för sökfunktionalitet
 ├── Member.cs           # Biblioteksmedlem
-├── Loan.cs             # Lan-hantering
-├── ItemCatalog.cs      # Katalog med sok, sortering och statistik
-├── LoanManager.cs      # Hanterar utlaningar och returer
+├── Loan.cs             # Lån-hantering
+├── ItemCatalog.cs      # Katalog med sök, sortering och statistik
+├── LoanManager.cs      # Hanterar utlåningar och returer
 └── Program.cs          # Konsolapplikation med demo
 
 Bibliotekssystem_Arv_Komp.Test/
@@ -25,19 +25,19 @@ Bibliotekssystem_Arv_Komp.Test/
 
 | Koncept | Implementation |
 |---------|---------------|
-| **Arv** | `Book`, `DVD`, `Magazine` arver fran `LibraryItem` |
-| **Abstraktion** | `LibraryItem` ar abstrakt med `GetInfo()` |
-| **Polymorfism** | `ISearchable` implementeras av bade `LibraryItem` och `Member` |
-| **Komposition** | `ItemCatalog` innehaller `LibraryItem`, `LoanManager` hanterar `Loan` |
+| **Arv** | `Book`, `DVD`, `Magazine` ärver fran `LibraryItem` |
+| **Abstraktion** | `LibraryItem` är abstrakt med `GetInfo()` |
+| **Polymorfism** | `ISearchable` implementeras av både `LibraryItem` och `Member` |
+| **Komposition** | `ItemCatalog` innehåller `LibraryItem`, `LoanManager` hanterar `Loan` |
 | **Inkapsling** | `Member.Loans` exponeras som `IReadOnlyList<Loan>` |
 
 ## Funktioner
 
-- Hantera bocker, DVD:er och tidskrifter
-- Sok pa titel, forfattare, ISBN och allman fritext
-- Sortera efter titel, utgivningsar och forfattare
-- Lanehantering med forfallodat och forsening
-- Statistik over katalog och mest aktiva lantagare
+- Hantera böcker, DVD:er och tidskrifter
+- Sök på titel, författare, ISBN och allmän fritext
+- Sortera efter titel, utgivningsår och författare
+- Lånehantering med förfallodat och försening
+- Statistik över katalog och mest aktiva lantagare
 
 ## Kora projektet
 
