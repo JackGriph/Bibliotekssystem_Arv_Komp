@@ -9,34 +9,41 @@
 <div class="card mb-4">
     <div class="card-header">Skapa nytt lån</div>
     <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Bok</label>
-                <select class="form-select" @bind="selectedBookId">
-                    <option value="0">Välj bok...</option>
-                    @foreach (var book in availableBooks)
-                    {
-                        <option value="@book.Id">@book.Title (@book.ISBN)</option>
-                    }
-                </select>
+        <EditForm Model="loanModel" OnValidSubmit="CreateLoan" FormName="createLoan">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="bookSelect" class="form-label">Bok</label>
+                    <InputSelect id="bookSelect" class="form-select" @bind-Value="loanModel.BookId">
+                        <option value="0">Välj bok...</option>
+                        @foreach (var book in availableBooks)
+                        {
+                            <option value="@book.Id">@book.Title (@book.ISBN)</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => loanModel.BookId" />
+                </div>
+                <div class="col-md-4">
+                    <label for="memberSelect" class="form-label">Medlem</label>
+                    <InputSelect id="memberSelect" class="form-select" @bind-Value="loanModel.MemberId">
+                        <option value="0">Välj medlem...</option>
+                        @foreach (var member in members)
+                        {
+                            <option value="@member.Id">@member.Name (@member.MemberId)</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => loanModel.MemberId" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        Skapa lån
+                    </button>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Medlem</label>
-                <select class="form-select" @bind="selectedMemberId">
-                    <option value="0">Välj medlem...</option>
-                    @foreach (var member in members)
-                    {
-                        <option value="@member.Id">@member.Name (@member.MemberId)</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button class="btn btn-primary" @onclick="CreateLoan"
-                        disabled="@(selectedBookId == 0 || selectedMemberId == 0)">
-                    Skapa lån
-                </button>
-            </div>
-        </div>
+        </EditForm>
+
         @if (!string.IsNullOrEmpty(message))
         {
             <div class="alert @messageClass mt-3">@message</div>
@@ -96,11 +103,10 @@ else
 }
 
 @code {
+    private LoanFormModel loanModel = new();
     private List<Loan>? activeLoans;
     private List<Book> availableBooks = new();
     private List<Member> members = new();
-    private int selectedBookId;
-    private int selectedMemberId;
     private string message = "";
     private string messageClass = "alert-info";
 
@@ -131,11 +137,9 @@ else
 
     private async Task CreateLoan()
     {
-        if (selectedBookId == 0 || selectedMemberId == 0) return;
-
         using var context = await DbFactory.CreateDbContextAsync();
-        var book = await context.Books.FindAsync(selectedBookId);
-        var member = await context.Members.FindAsync(selectedMemberId);
+        var book = await context.Books.FindAsync(loanModel.BookId);
+        var member = await context.Members.FindAsync(loanModel.MemberId);
 
         if (book == null || member == null)
         {
@@ -152,7 +156,7 @@ else
         }
 
         var memberActiveLoans = await context.Loans
-            .Where(l => EF.Property<int>(l, "MemberFkId") == selectedMemberId && l.ReturnDate == null)
+            .Where(l => EF.Property<int>(l, "MemberFkId") == loanModel.MemberId && l.ReturnDate == null)
             .CountAsync();
 
         if (memberActiveLoans >= 3)
@@ -169,8 +173,7 @@ else
 
         message = $"Lån skapat: {book.Title} till {member.Name}.";
         messageClass = "alert-success";
-        selectedBookId = 0;
-        selectedMemberId = 0;
+        loanModel = new();
         await LoadData();
     }
 
@@ -189,5 +192,14 @@ else
         message = $"{loan.Item.Title} har returnerats.";
         messageClass = "alert-success";
         await LoadData();
+    }
+
+    private class LoanFormModel
+    {
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "Välj en bok.")]
+        public int BookId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "Välj en medlem.")]
+        public int MemberId { get; set; }
     }
 }

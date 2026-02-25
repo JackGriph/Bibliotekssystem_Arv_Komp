@@ -1,0 +1,116 @@
+@page "/books/new"
+@rendermode InteractiveServer
+@inject IDbContextFactory<LibraryContext> DbFactory
+@inject NavigationManager Navigation
+
+<PageTitle>Lägg till bok</PageTitle>
+
+<h1>Lägg till ny bok</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="bookModel" OnValidSubmit="HandleSubmit" FormName="addBook">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="mb-3">
+                <label for="isbn" class="form-label">ISBN</label>
+                <InputText id="isbn" class="form-control" @bind-Value="bookModel.ISBN" />
+                <ValidationMessage For="() => bookModel.ISBN" />
+            </div>
+
+            <div class="mb-3">
+                <label for="title" class="form-label">Titel</label>
+                <InputText id="title" class="form-control" @bind-Value="bookModel.Title" />
+                <ValidationMessage For="() => bookModel.Title" />
+            </div>
+
+            <div class="mb-3">
+                <label for="author" class="form-label">Författare</label>
+                <InputText id="author" class="form-control" @bind-Value="bookModel.Author" />
+                <ValidationMessage For="() => bookModel.Author" />
+            </div>
+
+            <div class="mb-3">
+                <label for="year" class="form-label">Utgivningsår</label>
+                <InputNumber id="year" class="form-control" @bind-Value="bookModel.PublishedYear" />
+                <ValidationMessage For="() => bookModel.PublishedYear" />
+            </div>
+
+            <div class="mb-3">
+                <label for="pages" class="form-label">Antal sidor</label>
+                <InputNumber id="pages" class="form-control" @bind-Value="bookModel.Pages" />
+                <ValidationMessage For="() => bookModel.Pages" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Spara</button>
+            <a href="/books" class="btn btn-secondary ms-2">Avbryt</a>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+    </div>
+
+    <div class="col-md-6">
+        <h4>Förhandsgranskning</h4>
+        @if (!string.IsNullOrWhiteSpace(bookModel.Title))
+        {
+            var previewBook = new Book(
+                bookModel.ISBN ?? "",
+                bookModel.Title ?? "",
+                bookModel.Author ?? "",
+                bookModel.PublishedYear,
+                bookModel.Pages);
+            <BookCard Book="previewBook" />
+        }
+    </div>
+</div>
+
+@code {
+    private BookFormModel bookModel = new();
+    private string errorMessage = "";
+
+    private async Task HandleSubmit()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+
+        var existing = await context.Books.FirstOrDefaultAsync(b => b.ISBN == bookModel.ISBN);
+        if (existing != null)
+        {
+            errorMessage = $"En bok med ISBN {bookModel.ISBN} finns redan.";
+            return;
+        }
+
+        var book = new Book(
+            bookModel.ISBN!,
+            bookModel.Title!,
+            bookModel.Author!,
+            bookModel.PublishedYear,
+            bookModel.Pages);
+
+        context.Books.Add(book);
+        await context.SaveChangesAsync();
+
+        Navigation.NavigateTo("/books");
+    }
+
+    private class BookFormModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "ISBN krävs.")]
+        public string? ISBN { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Titel krävs.")]
+        public string? Title { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Författare krävs.")]
+        public string? Author { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(1, 2100, ErrorMessage = "Ange ett giltigt utgivningsår.")]
+        public int PublishedYear { get; set; } = DateTime.Now.Year;
+
+        [System.ComponentModel.DataAnnotations.Range(0, 10000, ErrorMessage = "Ange ett giltigt sidantal.")]
+        public int Pages { get; set; }
+    }
+}

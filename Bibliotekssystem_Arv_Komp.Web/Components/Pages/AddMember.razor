@@ -1,0 +1,83 @@
+@page "/members/new"
+@rendermode InteractiveServer
+@inject IDbContextFactory<LibraryContext> DbFactory
+@inject NavigationManager Navigation
+
+<PageTitle>Registrera medlem</PageTitle>
+
+<h1>Registrera ny medlem</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="memberModel" OnValidSubmit="HandleSubmit" FormName="addMember">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="mb-3">
+                <label for="memberId" class="form-label">Medlems-ID</label>
+                <InputText id="memberId" class="form-control" @bind-Value="memberModel.MemberId" />
+                <ValidationMessage For="() => memberModel.MemberId" />
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Namn</label>
+                <InputText id="name" class="form-control" @bind-Value="memberModel.Name" />
+                <ValidationMessage For="() => memberModel.Name" />
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">E-post</label>
+                <InputText id="email" class="form-control" @bind-Value="memberModel.Email" />
+                <ValidationMessage For="() => memberModel.Email" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Registrera</button>
+            <a href="/members" class="btn btn-secondary ms-2">Avbryt</a>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+    </div>
+</div>
+
+@code {
+    private MemberFormModel memberModel = new();
+    private string errorMessage = "";
+
+    private async Task HandleSubmit()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+
+        var existing = await context.Members.FirstOrDefaultAsync(m => m.MemberId == memberModel.MemberId);
+        if (existing != null)
+        {
+            errorMessage = $"En medlem med ID {memberModel.MemberId} finns redan.";
+            return;
+        }
+
+        var member = new Member(
+            memberModel.MemberId!,
+            memberModel.Name!,
+            memberModel.Email!);
+
+        context.Members.Add(member);
+        await context.SaveChangesAsync();
+
+        Navigation.NavigateTo("/members");
+    }
+
+    private class MemberFormModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Medlems-ID krävs.")]
+        public string? MemberId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Namn krävs.")]
+        public string? Name { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "E-post krävs.")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Ange en giltig e-postadress.")]
+        public string? Email { get; set; }
+    }
+}
