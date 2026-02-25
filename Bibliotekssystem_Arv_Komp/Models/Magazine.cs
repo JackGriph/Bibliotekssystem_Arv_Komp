@@ -7,6 +7,8 @@ namespace Bibliotekssystem_Arv_Komp.Models
         public string Publisher { get; set; }
         public int Month { get; set; }
 
+        private Magazine() : base() { }
+
         public Magazine(string issn, string title, int issueNumber, string publisher, int publishedYear, int month)
             : base(issn, title, publishedYear)
         {

@@ -7,6 +7,8 @@ namespace Bibliotekssystem_Arv_Komp.Models
         public string Genre { get; set; }
         public List<string> Actors { get; set; }
 
+        private DVD() : base() { Actors = new List<string>(); }
+
         public DVD(string itemId, string title, string director, int publishedYear, int duration, string genre)
             : base(itemId, title, publishedYear)
         {

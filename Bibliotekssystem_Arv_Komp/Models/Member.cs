@@ -4,6 +4,7 @@ namespace Bibliotekssystem_Arv_Komp.Models
 {
     public class Member : ISearchable
     {
+        public int Id { get; set; }
         public string MemberId { get; init; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -11,6 +12,8 @@ namespace Bibliotekssystem_Arv_Komp.Models
 
         private List<Loan> _loans;
         public IReadOnlyList<Loan> Loans => _loans.AsReadOnly();
+
+        private Member() { _loans = new List<Loan>(); }
 
         public Member(string memberId, string name, string email)
         {

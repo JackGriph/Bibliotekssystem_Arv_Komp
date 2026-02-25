@@ -1,0 +1,101 @@
+@page "/members/{Id:int}"
+@rendermode InteractiveServer
+@inject IDbContextFactory<LibraryContext> DbFactory
+
+<PageTitle>Medlemsdetaljer</PageTitle>
+
+@if (member == null)
+{
+    <p><em>Laddar medlem...</em></p>
+}
+else
+{
+    <h1>@member.Name</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Medlems-ID</dt>
+                <dd class="col-sm-9">@member.MemberId</dd>
+
+                <dt class="col-sm-3">E-post</dt>
+                <dd class="col-sm-9">@member.Email</dd>
+
+                <dt class="col-sm-3">Medlem sedan</dt>
+                <dd class="col-sm-9">@member.MemberSince.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-3">Aktiva lån</dt>
+                <dd class="col-sm-9">@loans.Count(l => l.ReturnDate == null)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <h3>Lånehistorik</h3>
+    @if (loans.Any())
+    {
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Bok</th>
+                    <th>Lånedatum</th>
+                    <th>Förfallodatum</th>
+                    <th>Returnerad</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loan in loans)
+                {
+                    <tr class="@(loan.ReturnDate == null && loan.DueDate < DateTime.Now ? "table-danger" : "")">
+                        <td>@loan.Item.Title</td>
+                        <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                        <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                        <td>
+                            @if (loan.ReturnDate != null)
+                            {
+                                <span class="badge bg-secondary">Returnerad</span>
+                            }
+                            else if (loan.DueDate < DateTime.Now)
+                            {
+                                <span class="badge bg-danger">Försenad</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">Aktiv</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Ingen lånehistorik för denna medlem.</p>
+    }
+
+    <a href="members" class="btn btn-outline-secondary mt-3">Tillbaka till medlemslistan</a>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Member? member;
+    private List<Loan> loans = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        member = await context.Members.FindAsync(Id);
+        if (member != null)
+        {
+            loans = await context.Loans
+                .Include(l => l.Item)
+                .Where(l => EF.Property<int>(l, "MemberFkId") == Id)
+                .OrderByDescending(l => l.LoanDate)
+                .ToListAsync();
+        }
+    }
+}

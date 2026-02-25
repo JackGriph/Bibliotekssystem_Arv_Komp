@@ -2,6 +2,7 @@
 {
     public class Loan
     {
+        public int Id { get; set; }
         public LibraryItem Item { get; init; }
         public Member Member { get; init; }
         public DateTime LoanDate { get; init; }
@@ -20,6 +21,8 @@
         }
 
         public bool IsReturned => ReturnDate.HasValue;
+
+        private Loan() { }
 
         public Loan(LibraryItem item, Member member, int loanDays = 14)
         {

@@ -1,0 +1,80 @@
+@page "/"
+@rendermode InteractiveServer
+@inject IDbContextFactory<LibraryContext> DbFactory
+
+<PageTitle>Bibliotekssystem</PageTitle>
+
+<h1>Välkommen till Bibliotekssystemet</h1>
+<p class="lead">Hantera böcker, medlemmar och utlåningar.</p>
+
+@if (loaded)
+{
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Böcker</h5>
+                    <p class="card-text display-6">@bookCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Medlemmar</h5>
+                    <p class="card-text display-6">@memberCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Aktiva lån</h5>
+                    <p class="card-text display-6">@activeLoanCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Försenade lån</h5>
+                    <p class="card-text display-6">@overdueLoanCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <a href="books" class="btn btn-outline-primary btn-lg w-100">Visa böcker</a>
+        </div>
+        <div class="col-md-4">
+            <a href="members" class="btn btn-outline-success btn-lg w-100">Visa medlemmar</a>
+        </div>
+        <div class="col-md-4">
+            <a href="loans" class="btn btn-outline-warning btn-lg w-100">Hantera utlåning</a>
+        </div>
+    </div>
+}
+else
+{
+    <p><em>Laddar statistik...</em></p>
+}
+
+@code {
+    private int bookCount;
+    private int memberCount;
+    private int activeLoanCount;
+    private int overdueLoanCount;
+    private bool loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        bookCount = await context.Books.CountAsync();
+        memberCount = await context.Members.CountAsync();
+        activeLoanCount = await context.Loans.CountAsync(l => l.ReturnDate == null);
+        overdueLoanCount = await context.Loans.CountAsync(l => l.ReturnDate == null && l.DueDate < DateTime.Now);
+        loaded = true;
+    }
+}

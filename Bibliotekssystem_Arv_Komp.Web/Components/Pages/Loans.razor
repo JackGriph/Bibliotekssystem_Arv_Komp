@@ -1,0 +1,193 @@
+@page "/loans"
+@rendermode InteractiveServer
+@inject IDbContextFactory<LibraryContext> DbFactory
+
+<PageTitle>Utlåning</PageTitle>
+
+<h1>Utlåning</h1>
+
+<div class="card mb-4">
+    <div class="card-header">Skapa nytt lån</div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Bok</label>
+                <select class="form-select" @bind="selectedBookId">
+                    <option value="0">Välj bok...</option>
+                    @foreach (var book in availableBooks)
+                    {
+                        <option value="@book.Id">@book.Title (@book.ISBN)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Medlem</label>
+                <select class="form-select" @bind="selectedMemberId">
+                    <option value="0">Välj medlem...</option>
+                    @foreach (var member in members)
+                    {
+                        <option value="@member.Id">@member.Name (@member.MemberId)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-primary" @onclick="CreateLoan"
+                        disabled="@(selectedBookId == 0 || selectedMemberId == 0)">
+                    Skapa lån
+                </button>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @messageClass mt-3">@message</div>
+        }
+    </div>
+</div>
+
+<h3>Aktiva lån</h3>
+@if (activeLoans == null)
+{
+    <p><em>Laddar lån...</em></p>
+}
+else if (!activeLoans.Any())
+{
+    <p>Inga aktiva lån.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Bok</th>
+                <th>Medlem</th>
+                <th>Lånedatum</th>
+                <th>Förfallodatum</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var loan in activeLoans)
+            {
+                <tr class="@(loan.DueDate < DateTime.Now ? "table-danger" : "")">
+                    <td>@loan.Item.Title</td>
+                    <td>@loan.Member.Name</td>
+                    <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                    <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        @if (loan.DueDate < DateTime.Now)
+                        {
+                            <span class="badge bg-danger">Försenad</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Aktiv</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success" @onclick="() => ReturnLoan(loan.Id)">
+                            Returnera
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Loan>? activeLoans;
+    private List<Book> availableBooks = new();
+    private List<Member> members = new();
+    private int selectedBookId;
+    private int selectedMemberId;
+    private string message = "";
+    private string messageClass = "alert-info";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        activeLoans = await context.Loans
+            .Include(l => l.Item)
+            .Include(l => l.Member)
+            .Where(l => l.ReturnDate == null)
+            .OrderBy(l => l.DueDate)
+            .ToListAsync();
+
+        availableBooks = await context.Books
+            .Where(b => b.IsAvailable)
+            .OrderBy(b => b.Title)
+            .ToListAsync();
+
+        members = await context.Members
+            .OrderBy(m => m.Name)
+            .ToListAsync();
+    }
+
+    private async Task CreateLoan()
+    {
+        if (selectedBookId == 0 || selectedMemberId == 0) return;
+
+        using var context = await DbFactory.CreateDbContextAsync();
+        var book = await context.Books.FindAsync(selectedBookId);
+        var member = await context.Members.FindAsync(selectedMemberId);
+
+        if (book == null || member == null)
+        {
+            message = "Bok eller medlem hittades inte.";
+            messageClass = "alert-danger";
+            return;
+        }
+
+        if (!book.IsAvailable)
+        {
+            message = "Boken är redan utlånad.";
+            messageClass = "alert-danger";
+            return;
+        }
+
+        var memberActiveLoans = await context.Loans
+            .Where(l => EF.Property<int>(l, "MemberFkId") == selectedMemberId && l.ReturnDate == null)
+            .CountAsync();
+
+        if (memberActiveLoans >= 3)
+        {
+            message = $"{member.Name} har redan 3 aktiva lån (max tillåtet).";
+            messageClass = "alert-danger";
+            return;
+        }
+
+        var loan = new Loan(book, member, 14);
+        context.Loans.Add(loan);
+        book.IsAvailable = false;
+        await context.SaveChangesAsync();
+
+        message = $"Lån skapat: {book.Title} till {member.Name}.";
+        messageClass = "alert-success";
+        selectedBookId = 0;
+        selectedMemberId = 0;
+        await LoadData();
+    }
+
+    private async Task ReturnLoan(int loanId)
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        var loan = await context.Loans
+            .Include(l => l.Item)
+            .FirstOrDefaultAsync(l => l.Id == loanId);
+
+        if (loan == null) return;
+
+        loan.ReturnItem();
+        await context.SaveChangesAsync();
+
+        message = $"{loan.Item.Title} har returnerats.";
+        messageClass = "alert-success";
+        await LoadData();
+    }
+}

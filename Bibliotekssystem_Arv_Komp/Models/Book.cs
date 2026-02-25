@@ -10,6 +10,8 @@ namespace Bibliotekssystem_Arv_Komp.Models
 
         public ICollection<Loan> Loans { get; set; } = new List<Loan>();
 
+        private Book() : base() { }
+
         public Book(string isbn, string title, string author, int publishedYear, int pages = 0)
             : base(isbn, title, publishedYear)
         {

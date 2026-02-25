@@ -9,14 +9,45 @@ namespace Bibliotekssystem_Arv_Komp.Data
         public DbSet<Member> Members { get; set; }
         public DbSet<Loan> Loans { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseSqlite("Data Source=library.db");
-        }
+        public LibraryContext(DbContextOptions<LibraryContext> options)
+            : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Konfigurera relationer och constraints här
+            modelBuilder.Entity<LibraryItem>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+                entity.UseTphMappingStrategy();
+            });
+
+            modelBuilder.Entity<Book>(entity =>
+            {
+                entity.HasIndex(b => b.ISBN).IsUnique();
+            });
+
+            modelBuilder.Entity<Member>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+                entity.HasIndex(m => m.MemberId).IsUnique();
+            });
+
+            modelBuilder.Entity<Loan>(entity =>
+            {
+                entity.HasKey(l => l.Id);
+
+                entity.HasOne(l => l.Item)
+                    .WithMany()
+                    .HasForeignKey("LibraryItemId")
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(l => l.Member)
+                    .WithMany()
+                    .HasForeignKey("MemberFkId")
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Ignore(l => l.IsOverdue);
+                entity.Ignore(l => l.IsReturned);
+            });
         }
     }
 }

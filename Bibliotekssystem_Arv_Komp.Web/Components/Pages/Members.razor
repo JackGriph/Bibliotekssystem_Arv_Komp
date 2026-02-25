@@ -1,0 +1,79 @@
+@page "/members"
+@rendermode InteractiveServer
+@inject IDbContextFactory<LibraryContext> DbFactory
+
+<PageTitle>Medlemmar</PageTitle>
+
+<h1>Medlemmar</h1>
+
+@if (members == null)
+{
+    <p><em>Laddar medlemmar...</em></p>
+}
+else if (!members.Any())
+{
+    <p>Inga medlemmar hittades.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Medlems-ID</th>
+                <th>Namn</th>
+                <th>E-post</th>
+                <th>Medlem sedan</th>
+                <th>Aktiva lån</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in members)
+            {
+                <tr>
+                    <td>@m.Member.MemberId</td>
+                    <td>@m.Member.Name</td>
+                    <td>@m.Member.Email</td>
+                    <td>@m.Member.MemberSince.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <span class="badge @(m.ActiveLoans > 0 ? "bg-warning" : "bg-secondary")">
+                            @m.ActiveLoans
+                        </span>
+                    </td>
+                    <td>
+                        <a href="members/@m.Member.Id" class="btn btn-sm btn-outline-primary">Detaljer</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<MemberViewModel>? members;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        var allMembers = await context.Members.ToListAsync();
+
+        var loanCounts = await context.Loans
+            .Include(l => l.Member)
+            .Where(l => l.ReturnDate == null)
+            .GroupBy(l => l.Member.Id)
+            .Select(g => new { MemberId = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        members = allMembers.Select(m => new MemberViewModel
+        {
+            Member = m,
+            ActiveLoans = loanCounts.FirstOrDefault(lc => lc.MemberId == m.Id)?.Count ?? 0
+        }).ToList();
+    }
+
+    private class MemberViewModel
+    {
+        public Member Member { get; set; } = null!;
+        public int ActiveLoans { get; set; }
+    }
+}
