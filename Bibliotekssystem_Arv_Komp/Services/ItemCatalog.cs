@@ -1,4 +1,6 @@
-namespace Bibliotekssystem_Arv_Komp
+using Bibliotekssystem_Arv_Komp.Models;
+
+namespace Bibliotekssystem_Arv_Komp.Services
 {
     public class ItemCatalog
     {

@@ -1,4 +1,7 @@
-﻿namespace Bibliotekssystem_Arv_Komp.Test
+﻿using Bibliotekssystem_Arv_Komp.Models;
+using Bibliotekssystem_Arv_Komp.Services;
+
+namespace Bibliotekssystem_Arv_Komp.Test
 {
     public class BibliotekssytemTest
     {

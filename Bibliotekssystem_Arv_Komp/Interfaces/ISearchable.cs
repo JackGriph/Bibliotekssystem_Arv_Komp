@@ -1,4 +1,4 @@
-namespace Bibliotekssystem_Arv_Komp
+namespace Bibliotekssystem_Arv_Komp.Interfaces
 {
     public interface ISearchable
     {

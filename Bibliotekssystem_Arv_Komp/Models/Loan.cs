@@ -1,4 +1,4 @@
-﻿namespace Bibliotekssystem_Arv_Komp
+﻿namespace Bibliotekssystem_Arv_Komp.Models
 {
     public class Loan
     {

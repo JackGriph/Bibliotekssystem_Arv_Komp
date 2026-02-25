@@ -1,4 +1,6 @@
-namespace Bibliotekssystem_Arv_Komp
+using Bibliotekssystem_Arv_Komp.Interfaces;
+
+namespace Bibliotekssystem_Arv_Komp.Models
 {
     public abstract class LibraryItem : ISearchable
     {
