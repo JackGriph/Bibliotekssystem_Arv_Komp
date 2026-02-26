@@ -10,7 +10,13 @@
 }
 else
 {
-    <h1>@member.Name</h1>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">@member.Name</h1>
+            <p class="page-subtitle">Medlemsdetaljer och lånehistorik.</p>
+        </div>
+        <a href="/members" class="action-btn">Tillbaka</a>
+    </div>
 
     <div class="card mb-4">
         <div class="card-body">
@@ -75,7 +81,7 @@ else
         <p>Ingen lånehistorik för denna medlem.</p>
     }
 
-    <a href="members" class="btn btn-outline-secondary mt-3">Tillbaka till medlemslistan</a>
+    <a href="/members" class="action-btn" style="display:inline-block; margin-top:1rem;">Tillbaka till medlemslistan</a>
 }
 
 @code {

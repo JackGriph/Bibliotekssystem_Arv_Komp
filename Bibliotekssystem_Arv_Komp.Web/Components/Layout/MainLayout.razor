@@ -1,18 +1,18 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="site">
+    <header class="site-header">
+        <a class="site-brand" href="/">BIBLIOTEKET</a>
+        <nav class="site-nav">
+            <NavLink href="/" Match="NavLinkMatch.All">STARTSIDA</NavLink>
+            <NavLink href="books">BÖCKER</NavLink>
+            <NavLink href="members">MEDLEMMAR</NavLink>
+            <NavLink href="loans">UTLÅNING</NavLink>
+        </nav>
+    </header>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="site-content">
+        @Body
     </main>
 </div>
 

@@ -58,3 +58,256 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* ===== GEMENSAMMA SIDKLASSER ===== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.3rem 0;
+}
+
+.page-subtitle {
+    font-size: 0.85rem;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.action-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #333;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+}
+
+.action-btn-sm {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #333;
+    transition: all 0.2s;
+}
+
+.action-btn-sm:hover {
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Tabeller */
+.table thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    border-bottom-width: 1px;
+}
+
+/* ===== HOME PAGE – Mango-inspirerad layout ===== */
+
+.home-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #222;
+    margin-bottom: 0;
+}
+
+.home-topbar-left,
+.home-topbar-right {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    color: #555;
+}
+
+.home-topbar-right {
+    text-align: right;
+}
+
+.home-topbar-center {
+    text-align: center;
+}
+
+.home-logo {
+    font-size: 2.8rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+.home-nav {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #222;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+}
+
+.home-nav a {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.home-nav a:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+.home-hero {
+    display: flex;
+    min-height: 60vh;
+    margin-top: 0;
+}
+
+.home-hero-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 3rem 3rem 3rem 0;
+}
+
+.home-hero-title {
+    font-size: 3rem;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.home-dot {
+    font-weight: 700;
+    font-size: 3.5rem;
+}
+
+.home-hero-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    background-color: #f5f5f5;
+}
+
+.home-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.home-stat-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.home-stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.home-stat-label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #666;
+}
+
+.home-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.home-action-btn {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #333;
+    transition: all 0.2s;
+}
+
+.home-action-btn:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Responsiv: stack på mobil */
+@media (max-width: 768px) {
+    .home-topbar {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .home-topbar-right {
+        text-align: center;
+    }
+
+    .home-nav {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .home-hero {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .home-hero-left {
+        padding: 2rem 0;
+    }
+
+    .home-hero-title {
+        font-size: 2rem;
+    }
+
+    .home-hero-right {
+        padding: 2rem 1rem;
+    }
+
+    .home-actions {
+        flex-direction: column;
+    }
+}

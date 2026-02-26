@@ -4,62 +4,73 @@
 
 <PageTitle>Bibliotekssystem</PageTitle>
 
-<h1>Välkommen till Bibliotekssystemet</h1>
-<p class="lead">Hantera böcker, medlemmar och utlåningar.</p>
-
-@if (loaded)
-{
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Böcker</h5>
-                    <p class="card-text display-6">@bookCount</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Medlemmar</h5>
-                    <p class="card-text display-6">@memberCount</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Aktiva lån</h5>
-                    <p class="card-text display-6">@activeLoanCount</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-danger mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Försenade lån</h5>
-                    <p class="card-text display-6">@overdueLoanCount</p>
-                </div>
-            </div>
-        </div>
+<!-- Topbanner: info vänster | namn center | info höger -->
+<div class="home-topbar">
+    <div class="home-topbar-left">
+        Ett bibliotekshanteringssystem<br />
+        byggt i C# &amp; Blazor
     </div>
-
-    <div class="row mt-3">
-        <div class="col-md-4">
-            <a href="books" class="btn btn-outline-primary btn-lg w-100">Visa böcker</a>
-        </div>
-        <div class="col-md-4">
-            <a href="members" class="btn btn-outline-success btn-lg w-100">Visa medlemmar</a>
-        </div>
-        <div class="col-md-4">
-            <a href="loans" class="btn btn-outline-warning btn-lg w-100">Hantera utlåning</a>
-        </div>
+    <div class="home-topbar-center">
+        <span class="home-logo">BIBLIOTEKET</span>
     </div>
-}
-else
-{
-    <p><em>Laddar statistik...</em></p>
-}
+    <div class="home-topbar-right">
+        Böcker &bull; Medlemmar<br />
+        Utlåning &bull; Statistik
+    </div>
+</div>
+
+<!-- Navigation -->
+<nav class="home-nav">
+    <a href="/books">BÖCKER</a>
+    <a href="/books/new">LÄGG TILL BOK</a>
+    <a href="/members">MEDLEMMAR</a>
+    <a href="/members/new">REGISTRERA MEDLEM</a>
+    <a href="/loans">UTLÅNING</a>
+</nav>
+
+<!-- Hero: split-sektion -->
+<div class="home-hero">
+    <div class="home-hero-left">
+        <h1 class="home-hero-title">
+            Hantera böcker,
+            medlemmar &amp;
+            utlåningar<span class="home-dot">.</span>
+        </h1>
+    </div>
+    <div class="home-hero-right">
+        @if (loaded)
+        {
+            <div class="home-stats-grid">
+                <div class="home-stat-card">
+                    <span class="home-stat-number">@bookCount</span>
+                    <span class="home-stat-label">Böcker</span>
+                </div>
+                <div class="home-stat-card">
+                    <span class="home-stat-number">@memberCount</span>
+                    <span class="home-stat-label">Medlemmar</span>
+                </div>
+                <div class="home-stat-card">
+                    <span class="home-stat-number">@activeLoanCount</span>
+                    <span class="home-stat-label">Aktiva lån</span>
+                </div>
+                <div class="home-stat-card">
+                    <span class="home-stat-number">@overdueLoanCount</span>
+                    <span class="home-stat-label">Försenade</span>
+                </div>
+            </div>
+
+            <div class="home-actions">
+                <a href="/books" class="home-action-btn">Visa böcker</a>
+                <a href="/members" class="home-action-btn">Visa medlemmar</a>
+                <a href="/loans" class="home-action-btn">Hantera utlåning</a>
+            </div>
+        }
+        else
+        {
+            <p><em>Laddar statistik...</em></p>
+        }
+    </div>
+</div>
 
 @code {
     private int bookCount;

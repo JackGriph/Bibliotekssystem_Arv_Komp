@@ -11,7 +11,13 @@
 }
 else
 {
-    <h1>@book.Title</h1>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">@book.Title</h1>
+            <p class="page-subtitle">Bokdetaljer och lånehistorik.</p>
+        </div>
+        <a href="/books" class="action-btn">Tillbaka</a>
+    </div>
 
     <div class="card mb-4">
         <div class="card-body">
@@ -121,7 +127,7 @@ else
         <p>Ingen lånehistorik för denna bok.</p>
     }
 
-    <a href="books" class="btn btn-outline-secondary mt-3">Tillbaka till boklistan</a>
+    <a href="/books" class="action-btn" style="display:inline-block; margin-top:1rem;">Tillbaka till boklistan</a>
 }
 
 @code {

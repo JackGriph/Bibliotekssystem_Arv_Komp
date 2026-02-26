@@ -4,9 +4,12 @@
 
 <PageTitle>Medlemmar</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Medlemmar</h1>
-    <a href="/members/new" class="btn btn-primary">Registrera medlem</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Medlemmar</h1>
+        <p class="page-subtitle">Registrerade medlemmar och deras lånestatus.</p>
+    </div>
+    <a href="/members/new" class="action-btn">Registrera medlem</a>
 </div>
 
 @if (members == null)
@@ -44,7 +47,7 @@ else
                         </span>
                     </td>
                     <td>
-                        <a href="members/@m.Member.Id" class="btn btn-sm btn-outline-primary">Detaljer</a>
+                        <a href="members/@m.Member.Id" class="action-btn-sm">Detaljer</a>
                     </td>
                 </tr>
             }
