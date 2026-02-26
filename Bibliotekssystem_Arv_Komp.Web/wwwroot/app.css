@@ -10,6 +10,8 @@
     --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
 }
 
+
+
 html, body {
     font-family: var(--font-body);
     color: var(--brown);
@@ -257,7 +259,7 @@ tr.table-danger > td {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.5rem 0;
+    padding: 1.5rem 0 2.6rem 0;
     border-bottom: 2px solid var(--yellow);
     margin-bottom: 0;
 }
@@ -345,7 +347,7 @@ tr.table-danger > td {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 4rem 3rem 3rem 3rem;
+    padding: 3rem 3rem 3rem 3rem;
 
     background-color: var(--brown-light);
 }
