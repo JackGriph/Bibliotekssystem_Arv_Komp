@@ -20,12 +20,29 @@ Bibliotekssystem_Arv_Komp/             # Kärnbibliotek (modeller, tjänster, ko
 │   └── LoanManager.cs                # Hanterar utlåningar och returer
 └── Program.cs                         # Konsolapplikation med demo
 
-Bibliotekssystem_Arv_Komp.Data/        # Datalager (EF Core + Repository Pattern)
-├── LibraryContext.cs                  # DbContext med TPH-konfiguration
-├── IBookRepository.cs                 # Repository-interface
-└── BookRepository.cs                  # Repository-implementation
+Bibliotekssystem_Arv_Komp.Data/        # Datalager (EF Core + Repository + Service)
+├── Context/
+│   ├── LibraryContext.cs              # DbContext med TPH-konfiguration
+│   └── DbSeeder.cs                   # Seed data (14 böcker, 3 medlemmar)
+├── Repositories/
+│   ├── IBookRepository.cs            # Interface - böcker
+│   ├── BookRepository.cs             # Implementation - böcker
+│   ├── IMemberRepository.cs          # Interface - medlemmar
+│   ├── MemberRepository.cs           # Implementation - medlemmar
+│   ├── ILoanRepository.cs            # Interface - lån
+│   └── LoanRepository.cs             # Implementation - lån
+└── Services/
+    ├── ILoanService.cs                # Interface - affärslogik utlåning
+    └── LoanService.cs                 # Implementation (max 3 lån, tillgänglighetskontroll)
 
 Bibliotekssystem_Arv_Komp.Web/         # Blazor Server-webbapplikation
+├── Controllers/
+│   ├── BooksController.cs             # REST API: /api/books
+│   ├── MembersController.cs           # REST API: /api/members
+│   ├── LoansController.cs             # REST API: /api/loans
+│   └── StatsController.cs             # REST API: /api/stats
+├── Dtos/
+│   └── LibraryDtos.cs                 # Data Transfer Objects (delade av alla sidor)
 ├── Components/
 │   ├── BookCard.razor                 # Återanvändbar bokkortskomponent (B.3)
 │   ├── Layout/
@@ -40,7 +57,7 @@ Bibliotekssystem_Arv_Komp.Web/         # Blazor Server-webbapplikation
 │       ├── MemberDetails.razor        # Medlemsdetaljer
 │       ├── AddMember.razor            # Formulär: registrera medlem (B.4)
 │       └── Loans.razor                # Utlåning med EditForm-validering (B.4)
-└── Program.cs                         # Blazor-app med DI och seed data
+└── Program.cs                         # DI-konfiguration, API-mappning och seed
 
 Bibliotekssystem_Arv_Komp.Test/        # xUnit-tester (22 tester totalt)
 ├── BibliotekssytemTest.cs             # Del 1: 12 tester (modeller, sökning, statistik)
@@ -57,19 +74,40 @@ Bibliotekssystem_Arv_Komp.Test/        # xUnit-tester (22 tester totalt)
 | **Komposition** | `ItemCatalog` innehåller `LibraryItem`, `LoanManager` hanterar `Loan` |
 | **Inkapsling** | `Member.Loans` exponeras som `IReadOnlyList<Loan>` |
 
-## Del 2: EF Core & Blazor
+## Del 2: EF Core, Blazor & REST API
+
+### Arkitektur
+
+```
+Blazor-sidor  →  HttpClient  →  REST API (Controllers)  →  Services / Repositories  →  EF Core  →  SQLite
+```
 
 ### Entity Framework Core
 - **SQLite**-databas med `LibraryContext`
 - **TPH** (Table-Per-Hierarchy) för arvshierarkin `LibraryItem` → `Book`
-- **Repository Pattern** med `IBookRepository` / `BookRepository`
-- Seed data skapas automatiskt vid första körning
+- **Repository Pattern** med interfaces och implementationer (Book, Member, Loan)
+- **Service Layer** med `ILoanService` / `LoanService` for affärslogik (max 3 lån, tillgänglighetskontroll)
+- Seed data (14 böcker + 3 medlemmar) skapas automatiskt vid första körning via `DbSeeder`
+
+### REST API
+- 4 controllers: Books, Members, Loans, Stats
+- DTOs (`LibraryDtos.cs`) separerar API-kontrakt från domänmodeller
+- Blazor-sidorna anropar API:t via `HttpClient` (inte direkt mot databasen)
 
 ### Blazor Server
-- 7 sidor: Startsida, Boklista, Bokdetaljer, Medlemmar, Medlemsdetaljer, Utlåning, Formulär
+- 8 sidor: Startsida, Boklista, Bokdetaljer, Medlemmar, Medlemsdetaljer, Utlåning, Formulär (bok + medlem)
 - **Återanvändbar komponent**: `BookCard.razor` med `[Parameter]` (B.3)
 - **Formulärvalidering**: `EditForm` med `DataAnnotationsValidator` och `ValidationMessage` (B.4)
-- `IDbContextFactory` för korrekt DbContext-hantering i Blazor
+- Dependency Injection med interfaces registrerade i `Program.cs`
+
+### SOLID-principer
+| Princip | Implementation |
+|---------|---------------|
+| **SRP** | Controllers hanterar HTTP, Services hanterar affärslogik, Repositories hanterar data |
+| **OCP** | Nya repositories/services kan läggas till utan att ändra befintlig kod |
+| **LSP** | `Book` kan användas överallt där `LibraryItem` förväntas (TPH) |
+| **ISP** | Separata interfaces: `IBookRepository`, `IMemberRepository`, `ILoanRepository` |
+| **DIP** | Controllers och Services beror på interfaces, inte konkreta klasser |
 
 ### Tester Del 2 (10 st)
 - **Repository/DbContext** (4 tester): GetAll, GetByISBN, Search, TPH-lagring
