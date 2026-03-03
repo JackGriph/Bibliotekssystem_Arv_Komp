@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Bibliotekssystem_Arv_Komp.Models;
+using Bibliotekssystem_Arv_Komp.Data.Context;
 
-namespace Bibliotekssystem_Arv_Komp.Data
+namespace Bibliotekssystem_Arv_Komp.Data.Repositories
 {
     public class BookRepository : IBookRepository
     {

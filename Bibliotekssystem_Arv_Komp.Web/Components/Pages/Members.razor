@@ -63,5 +63,4 @@ else
         members = await Http.GetFromJsonAsync<List<MemberDto>>("api/members");
     }
 
-    private record MemberDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, int ActiveLoans);
 }

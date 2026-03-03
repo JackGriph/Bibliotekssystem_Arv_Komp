@@ -88,7 +88,10 @@ namespace Bibliotekssystem_Arv_Komp
 
             // 4. Allmän sökning (ISearchable)
             Console.WriteLine("\n[4] Allmän sökning på '1999':");
-            catalog.DisplaySearchResults("1999");
+            var searchResults = catalog.Search("1999");
+            Console.WriteLine($"   > {searchResults.Count} träffar");
+            foreach (var r in searchResults)
+                Console.WriteLine($"   - {r.Title} ({r.GetItemType()}, {r.PublishedYear})");
 
             // 5. Polymorfisk sökning i medlemmar
             Console.WriteLine("\n[5] Sök medlem 'Anna':");
@@ -104,13 +107,20 @@ namespace Bibliotekssystem_Arv_Komp
             Console.WriteLine(new string('=', 50));
 
             // 1. Sortera alfabetiskt
-            catalog.DisplaySortedByTitle();
+            Console.WriteLine("\n=== Sorterat efter titel (A-Ö) ===");
+            foreach (var item in catalog.GetItemsSortedByTitle())
+                Console.WriteLine($"- {item.Title} ({item.GetItemType()}, {item.PublishedYear})");
 
             // 2. Sortera efter år (äldst först)
-            catalog.DisplaySortedByYear(ascending: true);
+            Console.WriteLine("\n=== Sorterat efter år (äldst först) ===");
+            foreach (var item in catalog.GetItemsSortedByYear(ascending: true))
+                Console.WriteLine($"- {item.PublishedYear}: {item.Title} ({item.GetItemType()})");
 
             // 3. Sortera efter år (nyast först)
-            catalog.DisplaySortedByYear(ascending: false);
+            Console.WriteLine("\n=== Sorterat efter år (nyast först) ===");
+            foreach (var item in catalog.GetItemsSortedByYear(ascending: false))
+                Console.WriteLine($"- {item.PublishedYear}: {item.Title} ({item.GetItemType()})");
+
 
             // 4. Sortera böcker efter författare
             Console.WriteLine("\n=== Böcker sorterade efter författare ===");
@@ -147,13 +157,26 @@ namespace Bibliotekssystem_Arv_Komp
             Console.WriteLine(new string('=', 50));
 
             // Visa katalogstatistik
-            catalog.DisplayStatistics();
+            var catStats = catalog.GetStatistics();
+            Console.WriteLine($"\n📚 KATALOGSTATISTIK:");
+            Console.WriteLine($"   Totalt: {catStats.TotalItems} (Böcker: {catStats.TotalBooks}, Tidskrifter: {catStats.TotalMagazines}, DVD: {catStats.TotalDVDs})");
+            Console.WriteLine($"   Tillgängliga: {catStats.AvailableItems}, Utlånade: {catStats.LoanedItems}");
 
-            // Visa lånestatistik (inkl. mest aktiva låntagare)
-            loanManager.DisplayStatistics(members);
+            // Visa lånestatistik
+            var activeLoans = loanManager.GetActiveLoans();
+            var overdueLoans = loanManager.GetOverdueLoans();
+            var topMembers = loanManager.GetMostActiveMembers(members);
+            Console.WriteLine($"\n📋 LÅNESTATISTIK:");
+            Console.WriteLine($"   Aktiva lån: {activeLoans.Count}, Försenade: {overdueLoans.Count}");
+            Console.WriteLine($"\n🏆 MEST AKTIVA LÅNTAGARE:");
+            foreach (var s in topMembers)
+                Console.WriteLine($"   {s.Member.Name}: {s.TotalLoans} lån ({s.ActiveLoans} aktiva)");
 
             // Visa aktiva lån
-            loanManager.DisplayActiveLoans();
+            Console.WriteLine($"\n=== Aktiva lån ({activeLoans.Count}) ===");
+            foreach (var loan in activeLoans)
+                Console.WriteLine($"   {loan.Item.Title} → {loan.Member.Name} (förfaller {loan.DueDate:yyyy-MM-dd})");
+
 
             Console.WriteLine("\n\nDemonstration klar!");
           

@@ -160,10 +160,6 @@ else
         }
     }
 
-    private record BookDto(int Id, string ISBN, string Title, string Author, int PublishedYear, int Pages, bool IsAvailable);
-    private record MemberDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, int ActiveLoans);
-    private record LoanDto(int Id, string BookTitle, int BookId, string MemberName, int MemberId, DateTime LoanDate, DateTime DueDate, DateTime? ReturnDate);
-
     private class LoanFormModel
     {
         [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "Välj en bok.")]

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Bibliotekssystem_Arv_Komp.Data;
+using Bibliotekssystem_Arv_Komp.Data.Context;
+using Bibliotekssystem_Arv_Komp.Data.Repositories;
 using Bibliotekssystem_Arv_Komp.Models;
 
 namespace Bibliotekssystem_Arv_Komp.Test

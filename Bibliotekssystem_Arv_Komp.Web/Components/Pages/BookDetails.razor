@@ -181,7 +181,4 @@ else
         }
     }
 
-    private record LoanDto(int Id, string BookTitle, int BookId, string MemberName, int MemberId, DateTime LoanDate, DateTime DueDate, DateTime? ReturnDate);
-    private record BookDetailDto(int Id, string ISBN, string Title, string Author, int PublishedYear, int Pages, bool IsAvailable, List<LoanDto> Loans);
-    private record MemberDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, int ActiveLoans);
 }

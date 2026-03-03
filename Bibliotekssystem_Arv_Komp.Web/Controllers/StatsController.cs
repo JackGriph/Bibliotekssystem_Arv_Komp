@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Bibliotekssystem_Arv_Komp.Data;
+using Bibliotekssystem_Arv_Komp.Data.Services;
 using Bibliotekssystem_Arv_Komp.Web.Dtos;
 
 namespace Bibliotekssystem_Arv_Komp.Web.Controllers;
@@ -9,26 +8,24 @@ namespace Bibliotekssystem_Arv_Komp.Web.Controllers;
 [Route("api/[controller]")]
 public class StatsController : ControllerBase
 {
-    private readonly IDbContextFactory<LibraryContext> _dbFactory;
+    private readonly ILoanService _loanService;
 
-    public StatsController(IDbContextFactory<LibraryContext> dbFactory)
+    public StatsController(ILoanService loanService)
     {
-        _dbFactory = dbFactory;
+        _loanService = loanService;
     }
 
     // GET: api/stats
     [HttpGet]
     public async Task<ActionResult<StatsDto>> Get()
     {
-        using var context = await _dbFactory.CreateDbContextAsync();
+        var stats = await _loanService.GetStatsAsync();
 
-        var stats = new StatsDto(
-            BookCount: await context.Books.CountAsync(),
-            MemberCount: await context.Members.CountAsync(),
-            ActiveLoanCount: await context.Loans.CountAsync(l => l.ReturnDate == null),
-            OverdueLoanCount: await context.Loans.CountAsync(l => l.ReturnDate == null && l.DueDate < DateTime.Now)
-        );
-
-        return Ok(stats);
+        return Ok(new StatsDto(
+            stats.BookCount,
+            stats.MemberCount,
+            stats.ActiveLoanCount,
+            stats.OverdueLoanCount
+        ));
     }
 }

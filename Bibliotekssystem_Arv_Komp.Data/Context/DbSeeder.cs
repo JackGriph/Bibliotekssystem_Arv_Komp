@@ -1,6 +1,6 @@
 using Bibliotekssystem_Arv_Komp.Models;
 
-namespace Bibliotekssystem_Arv_Komp.Data;
+namespace Bibliotekssystem_Arv_Komp.Data.Context;
 
 public static class DbSeeder
 {

@@ -95,6 +95,4 @@ else
         member = await Http.GetFromJsonAsync<MemberDetailDto>($"api/members/{Id}");
     }
 
-    private record LoanDto(int Id, string BookTitle, int BookId, string MemberName, int MemberId, DateTime LoanDate, DateTime DueDate, DateTime? ReturnDate);
-    private record MemberDetailDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, List<LoanDto> Loans);
 }

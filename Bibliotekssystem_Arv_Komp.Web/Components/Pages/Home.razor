@@ -80,5 +80,4 @@
         stats = await Http.GetFromJsonAsync<StatsDto>("api/stats");
     }
 
-    private record StatsDto(int BookCount, int MemberCount, int ActiveLoanCount, int OverdueLoanCount);
 }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Bibliotekssystem_Arv_Komp.Data;
+using Bibliotekssystem_Arv_Komp.Data.Context;
 using Bibliotekssystem_Arv_Komp.Models;
 using Bibliotekssystem_Arv_Komp.Web.Dtos;
 
