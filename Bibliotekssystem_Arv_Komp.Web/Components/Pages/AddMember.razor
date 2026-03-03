@@ -1,6 +1,6 @@
 @page "/members/new"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 @inject NavigationManager Navigation
 
 <PageTitle>Registrera medlem</PageTitle>
@@ -54,24 +54,27 @@
 
     private async Task HandleSubmit()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-
-        var existing = await context.Members.FirstOrDefaultAsync(m => m.MemberId == memberModel.MemberId);
-        if (existing != null)
+        var request = new
         {
-            errorMessage = $"En medlem med ID {memberModel.MemberId} finns redan.";
-            return;
+            MemberId = memberModel.MemberId,
+            Name = memberModel.Name,
+            Email = memberModel.Email
+        };
+
+        var response = await Http.PostAsJsonAsync("api/members", request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/members");
         }
-
-        var member = new Member(
-            memberModel.MemberId!,
-            memberModel.Name!,
-            memberModel.Email!);
-
-        context.Members.Add(member);
-        await context.SaveChangesAsync();
-
-        Navigation.NavigateTo("/members");
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            errorMessage = await response.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            errorMessage = "Något gick fel vid registrering.";
+        }
     }
 
     private class MemberFormModel

@@ -1,6 +1,6 @@
 @page "/books/new"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 @inject NavigationManager Navigation
 
 <PageTitle>Lägg till bok</PageTitle>
@@ -63,13 +63,16 @@
         <h4>Förhandsgranskning</h4>
         @if (!string.IsNullOrWhiteSpace(bookModel.Title))
         {
-            var previewBook = new Book(
-                bookModel.ISBN ?? "",
-                bookModel.Title ?? "",
-                bookModel.Author ?? "",
-                bookModel.PublishedYear,
-                bookModel.Pages);
-            <BookCard Book="previewBook" />
+            <div class="card border-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@bookModel.Title</h5>
+                    <p class="card-text">
+                        <strong>Författare:</strong> @bookModel.Author<br />
+                        <strong>År:</strong> @bookModel.PublishedYear
+                    </p>
+                    <span class="badge bg-success">Tillgänglig</span>
+                </div>
+            </div>
         }
     </div>
 </div>
@@ -80,26 +83,29 @@
 
     private async Task HandleSubmit()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-
-        var existing = await context.Books.FirstOrDefaultAsync(b => b.ISBN == bookModel.ISBN);
-        if (existing != null)
+        var request = new
         {
-            errorMessage = $"En bok med ISBN {bookModel.ISBN} finns redan.";
-            return;
+            ISBN = bookModel.ISBN,
+            Title = bookModel.Title,
+            Author = bookModel.Author,
+            PublishedYear = bookModel.PublishedYear,
+            Pages = bookModel.Pages
+        };
+
+        var response = await Http.PostAsJsonAsync("api/books", request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/books");
         }
-
-        var book = new Book(
-            bookModel.ISBN!,
-            bookModel.Title!,
-            bookModel.Author!,
-            bookModel.PublishedYear,
-            bookModel.Pages);
-
-        context.Books.Add(book);
-        await context.SaveChangesAsync();
-
-        Navigation.NavigateTo("/books");
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            errorMessage = await response.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            errorMessage = "Något gick fel vid sparande av boken.";
+        }
     }
 
     private class BookFormModel

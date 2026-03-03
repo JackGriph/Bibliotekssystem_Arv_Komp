@@ -1,6 +1,6 @@
 @page "/loans"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 
 <PageTitle>Utlåning</PageTitle>
 
@@ -82,8 +82,8 @@ else
             @foreach (var loan in activeLoans)
             {
                 <tr class="@(loan.DueDate < DateTime.Now ? "table-danger" : "")">
-                    <td>@loan.Item.Title</td>
-                    <td>@loan.Member.Name</td>
+                    <td>@loan.BookTitle</td>
+                    <td>@loan.MemberName</td>
                     <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
                     <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
                     <td>
@@ -109,9 +109,9 @@ else
 
 @code {
     private LoanFormModel loanModel = new();
-    private List<Loan>? activeLoans;
-    private List<Book> availableBooks = new();
-    private List<Member> members = new();
+    private List<LoanDto>? activeLoans;
+    private List<BookDto> availableBooks = new();
+    private List<MemberDto> members = new();
     private string message = "";
     private string messageClass = "alert-info";
 
@@ -122,82 +122,47 @@ else
 
     private async Task LoadData()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        activeLoans = await context.Loans
-            .Include(l => l.Item)
-            .Include(l => l.Member)
-            .Where(l => l.ReturnDate == null)
-            .OrderBy(l => l.DueDate)
-            .ToListAsync();
+        activeLoans = await Http.GetFromJsonAsync<List<LoanDto>>("api/loans/active") ?? new();
 
-        availableBooks = await context.Books
-            .Where(b => b.IsAvailable)
-            .OrderBy(b => b.Title)
-            .ToListAsync();
+        var allBooks = await Http.GetFromJsonAsync<List<BookDto>>("api/books") ?? new();
+        availableBooks = allBooks.Where(b => b.IsAvailable).OrderBy(b => b.Title).ToList();
 
-        members = await context.Members
-            .OrderBy(m => m.Name)
-            .ToListAsync();
+        members = await Http.GetFromJsonAsync<List<MemberDto>>("api/members") ?? new();
     }
 
     private async Task CreateLoan()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        var book = await context.Books.FindAsync(loanModel.BookId);
-        var member = await context.Members.FindAsync(loanModel.MemberId);
+        var request = new { BookId = loanModel.BookId, MemberId = loanModel.MemberId };
+        var response = await Http.PostAsJsonAsync("api/loans", request);
 
-        if (book == null || member == null)
+        if (response.IsSuccessStatusCode)
         {
-            message = "Bok eller medlem hittades inte.";
-            messageClass = "alert-danger";
-            return;
+            message = "Lån skapat!";
+            messageClass = "alert-success";
+            loanModel = new();
+            await LoadData();
         }
-
-        if (!book.IsAvailable)
+        else
         {
-            message = "Boken är redan utlånad.";
+            message = await response.Content.ReadAsStringAsync();
             messageClass = "alert-danger";
-            return;
         }
-
-        var memberActiveLoans = await context.Loans
-            .Where(l => EF.Property<int>(l, "MemberFkId") == loanModel.MemberId && l.ReturnDate == null)
-            .CountAsync();
-
-        if (memberActiveLoans >= 3)
-        {
-            message = $"{member.Name} har redan 3 aktiva lån (max tillåtet).";
-            messageClass = "alert-danger";
-            return;
-        }
-
-        var loan = new Loan(book, member, 14);
-        context.Loans.Add(loan);
-        book.IsAvailable = false;
-        await context.SaveChangesAsync();
-
-        message = $"Lån skapat: {book.Title} till {member.Name}.";
-        messageClass = "alert-success";
-        loanModel = new();
-        await LoadData();
     }
 
     private async Task ReturnLoan(int loanId)
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        var loan = await context.Loans
-            .Include(l => l.Item)
-            .FirstOrDefaultAsync(l => l.Id == loanId);
-
-        if (loan == null) return;
-
-        loan.ReturnItem();
-        await context.SaveChangesAsync();
-
-        message = $"{loan.Item.Title} har returnerats.";
-        messageClass = "alert-success";
-        await LoadData();
+        var response = await Http.PutAsync($"api/loans/{loanId}/return", null);
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Boken har returnerats.";
+            messageClass = "alert-success";
+            await LoadData();
+        }
     }
+
+    private record BookDto(int Id, string ISBN, string Title, string Author, int PublishedYear, int Pages, bool IsAvailable);
+    private record MemberDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, int ActiveLoans);
+    private record LoanDto(int Id, string BookTitle, int BookId, string MemberName, int MemberId, DateTime LoanDate, DateTime DueDate, DateTime? ReturnDate);
 
     private class LoanFormModel
     {

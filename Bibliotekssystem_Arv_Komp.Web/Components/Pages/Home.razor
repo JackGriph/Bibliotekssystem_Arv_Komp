@@ -1,6 +1,6 @@
 @page "/"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 
 <PageTitle>Bibliotekssystem</PageTitle>
 
@@ -38,23 +38,23 @@
         </h1>
     </div>
     <div class="home-hero-right">
-        @if (loaded)
+        @if (stats != null)
         {
             <div class="home-stats-grid">
                 <div class="home-stat-card">
-                    <span class="home-stat-number">@bookCount</span>
+                    <span class="home-stat-number">@stats.BookCount</span>
                     <span class="home-stat-label">Böcker</span>
                 </div>
                 <div class="home-stat-card">
-                    <span class="home-stat-number">@memberCount</span>
+                    <span class="home-stat-number">@stats.MemberCount</span>
                     <span class="home-stat-label">Medlemmar</span>
                 </div>
                 <div class="home-stat-card">
-                    <span class="home-stat-number">@activeLoanCount</span>
+                    <span class="home-stat-number">@stats.ActiveLoanCount</span>
                     <span class="home-stat-label">Aktiva lån</span>
                 </div>
                 <div class="home-stat-card">
-                    <span class="home-stat-number">@overdueLoanCount</span>
+                    <span class="home-stat-number">@stats.OverdueLoanCount</span>
                     <span class="home-stat-label">Försenade</span>
                 </div>
             </div>
@@ -73,19 +73,12 @@
 </div>
 
 @code {
-    private int bookCount;
-    private int memberCount;
-    private int activeLoanCount;
-    private int overdueLoanCount;
-    private bool loaded;
+    private StatsDto? stats;
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        bookCount = await context.Books.CountAsync();
-        memberCount = await context.Members.CountAsync();
-        activeLoanCount = await context.Loans.CountAsync(l => l.ReturnDate == null);
-        overdueLoanCount = await context.Loans.CountAsync(l => l.ReturnDate == null && l.DueDate < DateTime.Now);
-        loaded = true;
+        stats = await Http.GetFromJsonAsync<StatsDto>("api/stats");
     }
+
+    private record StatsDto(int BookCount, int MemberCount, int ActiveLoanCount, int OverdueLoanCount);
 }

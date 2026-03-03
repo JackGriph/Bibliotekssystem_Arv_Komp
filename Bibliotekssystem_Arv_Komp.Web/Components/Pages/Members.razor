@@ -1,6 +1,6 @@
 @page "/members"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 
 <PageTitle>Medlemmar</PageTitle>
 
@@ -37,17 +37,17 @@ else
             @foreach (var m in members)
             {
                 <tr>
-                    <td>@m.Member.MemberId</td>
-                    <td>@m.Member.Name</td>
-                    <td>@m.Member.Email</td>
-                    <td>@m.Member.MemberSince.ToString("yyyy-MM-dd")</td>
+                    <td>@m.MemberId</td>
+                    <td>@m.Name</td>
+                    <td>@m.Email</td>
+                    <td>@m.MemberSince.ToString("yyyy-MM-dd")</td>
                     <td>
                         <span class="badge @(m.ActiveLoans > 0 ? "bg-warning" : "bg-secondary")">
                             @m.ActiveLoans
                         </span>
                     </td>
                     <td>
-                        <a href="members/@m.Member.Id" class="action-btn-sm">Detaljer</a>
+                        <a href="members/@m.Id" class="action-btn-sm">Detaljer</a>
                     </td>
                 </tr>
             }
@@ -56,30 +56,12 @@ else
 }
 
 @code {
-    private List<MemberViewModel>? members;
+    private List<MemberDto>? members;
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        var allMembers = await context.Members.ToListAsync();
-
-        var loanCounts = await context.Loans
-            .Include(l => l.Member)
-            .Where(l => l.ReturnDate == null)
-            .GroupBy(l => l.Member.Id)
-            .Select(g => new { MemberId = g.Key, Count = g.Count() })
-            .ToListAsync();
-
-        members = allMembers.Select(m => new MemberViewModel
-        {
-            Member = m,
-            ActiveLoans = loanCounts.FirstOrDefault(lc => lc.MemberId == m.Id)?.Count ?? 0
-        }).ToList();
+        members = await Http.GetFromJsonAsync<List<MemberDto>>("api/members");
     }
 
-    private class MemberViewModel
-    {
-        public Member Member { get; set; } = null!;
-        public int ActiveLoans { get; set; }
-    }
+    private record MemberDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, int ActiveLoans);
 }

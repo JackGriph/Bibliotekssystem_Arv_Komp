@@ -1,6 +1,6 @@
 @page "/members/{Id:int}"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 
 <PageTitle>Medlemsdetaljer</PageTitle>
 
@@ -31,13 +31,13 @@ else
                 <dd class="col-sm-9">@member.MemberSince.ToString("yyyy-MM-dd")</dd>
 
                 <dt class="col-sm-3">Aktiva lån</dt>
-                <dd class="col-sm-9">@loans.Count(l => l.ReturnDate == null)</dd>
+                <dd class="col-sm-9">@member.Loans.Count(l => l.ReturnDate == null)</dd>
             </dl>
         </div>
     </div>
 
     <h3>Lånehistorik</h3>
-    @if (loans.Any())
+    @if (member.Loans.Any())
     {
         <table class="table table-sm">
             <thead>
@@ -50,10 +50,10 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var loan in loans)
+                @foreach (var loan in member.Loans)
                 {
                     <tr class="@(loan.ReturnDate == null && loan.DueDate < DateTime.Now ? "table-danger" : "")">
-                        <td>@loan.Item.Title</td>
+                        <td>@loan.BookTitle</td>
                         <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
                         <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
                         <td>@(loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "-")</td>
@@ -88,20 +88,13 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private Member? member;
-    private List<Loan> loans = new();
+    private MemberDetailDto? member;
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        member = await context.Members.FindAsync(Id);
-        if (member != null)
-        {
-            loans = await context.Loans
-                .Include(l => l.Item)
-                .Where(l => EF.Property<int>(l, "MemberFkId") == Id)
-                .OrderByDescending(l => l.LoanDate)
-                .ToListAsync();
-        }
+        member = await Http.GetFromJsonAsync<MemberDetailDto>($"api/members/{Id}");
     }
+
+    private record LoanDto(int Id, string BookTitle, int BookId, string MemberName, int MemberId, DateTime LoanDate, DateTime DueDate, DateTime? ReturnDate);
+    private record MemberDetailDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, List<LoanDto> Loans);
 }

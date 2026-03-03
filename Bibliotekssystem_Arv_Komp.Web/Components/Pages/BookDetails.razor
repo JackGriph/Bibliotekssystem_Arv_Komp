@@ -1,6 +1,6 @@
 @page "/books/{Id:int}"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 @inject NavigationManager Navigation
 
 <PageTitle>Bokdetaljer</PageTitle>
@@ -83,7 +83,7 @@ else
     }
 
     <h3>Lånehistorik</h3>
-    @if (loans.Any())
+    @if (book.Loans.Any())
     {
         <table class="table table-sm">
             <thead>
@@ -96,10 +96,10 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var loan in loans)
+                @foreach (var loan in book.Loans)
                 {
                     <tr class="@(loan.ReturnDate == null && loan.DueDate < DateTime.Now ? "table-danger" : "")">
-                        <td>@loan.Member.Name</td>
+                        <td>@loan.MemberName</td>
                         <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
                         <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
                         <td>@(loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "-")</td>
@@ -134,9 +134,8 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private Book? book;
-    private List<Loan> loans = new();
-    private List<Member> members = new();
+    private BookDetailDto? book;
+    private List<MemberDto> members = new();
     private int selectedMemberId;
     private string message = "";
 
@@ -147,51 +146,42 @@ else
 
     private async Task LoadData()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        book = await context.Books.FindAsync(Id);
-        if (book != null)
-        {
-            loans = await context.Loans
-                .Include(l => l.Member)
-                .Where(l => EF.Property<int>(l, "LibraryItemId") == Id)
-                .OrderByDescending(l => l.LoanDate)
-                .ToListAsync();
-        }
-        members = await context.Members.ToListAsync();
+        book = await Http.GetFromJsonAsync<BookDetailDto>($"api/books/{Id}");
+        members = await Http.GetFromJsonAsync<List<MemberDto>>("api/members") ?? new();
     }
 
     private async Task LoanBook()
     {
-        if (selectedMemberId == 0 || book == null) return;
+        if (selectedMemberId == 0) return;
 
-        using var context = await DbFactory.CreateDbContextAsync();
-        var dbBook = await context.Books.FindAsync(Id);
-        var dbMember = await context.Members.FindAsync(selectedMemberId);
-        if (dbBook == null || dbMember == null || !dbBook.IsAvailable) return;
+        var request = new { BookId = Id, MemberId = selectedMemberId };
+        var response = await Http.PostAsJsonAsync("api/loans", request);
 
-        var loan = new Loan(dbBook, dbMember, 14);
-        context.Loans.Add(loan);
-        dbBook.IsAvailable = false;
-        await context.SaveChangesAsync();
-
-        message = $"Boken har lånats ut till {dbMember.Name}.";
-        await LoadData();
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Boken har lånats ut.";
+            await LoadData();
+        }
+        else
+        {
+            message = await response.Content.ReadAsStringAsync();
+        }
     }
 
     private async Task ReturnBook()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        var activeLoan = await context.Loans
-            .Include(l => l.Item)
-            .Where(l => EF.Property<int>(l, "LibraryItemId") == Id && l.ReturnDate == null)
-            .FirstOrDefaultAsync();
-
+        var activeLoan = book?.Loans.FirstOrDefault(l => l.ReturnDate == null);
         if (activeLoan == null) return;
 
-        activeLoan.ReturnItem();
-        await context.SaveChangesAsync();
-
-        message = "Boken har returnerats.";
-        await LoadData();
+        var response = await Http.PutAsync($"api/loans/{activeLoan.Id}/return", null);
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Boken har returnerats.";
+            await LoadData();
+        }
     }
+
+    private record LoanDto(int Id, string BookTitle, int BookId, string MemberName, int MemberId, DateTime LoanDate, DateTime DueDate, DateTime? ReturnDate);
+    private record BookDetailDto(int Id, string ISBN, string Title, string Author, int PublishedYear, int Pages, bool IsAvailable, List<LoanDto> Loans);
+    private record MemberDto(int Id, string MemberId, string Name, string Email, DateTime MemberSince, int ActiveLoans);
 }

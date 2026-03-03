@@ -1,6 +1,6 @@
 @page "/books"
 @rendermode InteractiveServer
-@inject IDbContextFactory<LibraryContext> DbFactory
+@inject HttpClient Http
 
 <PageTitle>Böcker</PageTitle>
 
@@ -74,16 +74,15 @@ else
 }
 
 @code {
-    private List<Book>? books;
-    private List<Book> allBooks = new();
+    private List<BookDto>? books;
+    private List<BookDto> allBooks = new();
     private string searchTerm = "";
     private string sortColumn = "title";
     private bool sortAscending = true;
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        allBooks = await context.Books.ToListAsync();
+        allBooks = await Http.GetFromJsonAsync<List<BookDto>>("api/books") ?? new();
         FilterBooks();
     }
 
@@ -91,7 +90,11 @@ else
     {
         var filtered = string.IsNullOrWhiteSpace(searchTerm)
             ? allBooks
-            : allBooks.Where(b => b.Matches(searchTerm)).ToList();
+            : allBooks.Where(b =>
+                b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                b.Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                b.ISBN.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
 
         books = ApplySort(filtered);
     }
@@ -108,7 +111,7 @@ else
         FilterBooks();
     }
 
-    private List<Book> ApplySort(List<Book> items)
+    private List<BookDto> ApplySort(List<BookDto> items)
     {
         return sortColumn switch
         {
@@ -125,4 +128,6 @@ else
         if (sortColumn != column) return "";
         return sortAscending ? "\u25b2" : "\u25bc";
     }
+
+    private record BookDto(int Id, string ISBN, string Title, string Author, int PublishedYear, int Pages, bool IsAvailable);
 }
