@@ -39,6 +39,7 @@ else
     <h3>Lånehistorik</h3>
     @if (member.Loans.Any())
     {
+        <div class="table-responsive">
         <table class="table table-sm">
             <thead>
                 <tr>
@@ -75,6 +76,7 @@ else
                 }
             </tbody>
         </table>
+        </div>
     }
     else
     {

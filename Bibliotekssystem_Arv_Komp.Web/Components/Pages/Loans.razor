@@ -25,7 +25,7 @@
                         <option value="0">Välj bok...</option>
                         @foreach (var book in availableBooks)
                         {
-                            <option value="@book.Id">@book.Title (@book.ISBN)</option>
+                            <option value="@book.Id">@book.Title</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="() => loanModel.BookId" />
@@ -67,44 +67,46 @@ else if (!activeLoans.Any())
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Bok</th>
-                <th>Medlem</th>
-                <th>Lånedatum</th>
-                <th>Förfallodatum</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var loan in activeLoans)
-            {
-                <tr class="@(loan.DueDate < DateTime.Now ? "table-danger" : "")">
-                    <td>@loan.BookTitle</td>
-                    <td>@loan.MemberName</td>
-                    <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
-                    <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
-                    <td>
-                        @if (loan.DueDate < DateTime.Now)
-                        {
-                            <span class="badge bg-danger">Försenad</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-warning">Aktiv</span>
-                        }
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-success" @onclick="() => ReturnLoan(loan.Id)">
-                            Returnera
-                        </button>
-                    </td>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Bok</th>
+                    <th>Medlem</th>
+                    <th>Lånedatum</th>
+                    <th>Förfallodatum</th>
+                    <th>Status</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var loan in activeLoans)
+                {
+                    <tr class="@(loan.DueDate < DateTime.Now ? "table-danger" : "")">
+                        <td>@loan.BookTitle</td>
+                        <td>@loan.MemberName</td>
+                        <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                        <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            @if (loan.DueDate < DateTime.Now)
+                            {
+                                <span class="badge bg-danger">Försenad</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">Aktiv</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success" @onclick="() => ReturnLoan(loan.Id)">
+                                Returnera
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {

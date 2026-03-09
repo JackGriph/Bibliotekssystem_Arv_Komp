@@ -27,50 +27,52 @@ else if (!books.Any())
 }
 else
 {
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th role="button" @onclick='() => SortBy("title")'>
-                    Titel @SortIndicator("title")
-                </th>
-                <th role="button" @onclick='() => SortBy("author")'>
-                    Författare @SortIndicator("author")
-                </th>
-                <th role="button" @onclick='() => SortBy("isbn")'>
-                    ISBN @SortIndicator("isbn")
-                </th>
-                <th role="button" @onclick='() => SortBy("year")'>
-                    År @SortIndicator("year")
-                </th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var book in books)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
                 <tr>
-                    <td>@book.Title</td>
-                    <td>@book.Author</td>
-                    <td>@book.ISBN</td>
-                    <td>@book.PublishedYear</td>
-                    <td>
-                        @if (book.IsAvailable)
-                        {
-                            <span class="badge bg-success">Tillgänglig</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger">Utlånad</span>
-                        }
-                    </td>
-                    <td>
-                        <a href="books/@book.Id" class="action-btn-sm">Detaljer</a>
-                    </td>
+                    <th role="button" @onclick='() => SortBy("title")'>
+                        Titel @SortIndicator("title")
+                    </th>
+                    <th role="button" @onclick='() => SortBy("author")'>
+                        Författare @SortIndicator("author")
+                    </th>
+                    <th role="button" @onclick='() => SortBy("isbn")'>
+                        ISBN @SortIndicator("isbn")
+                    </th>
+                    <th role="button" @onclick='() => SortBy("year")'>
+                        År @SortIndicator("year")
+                    </th>
+                    <th>Status</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var book in books)
+                {
+                    <tr>
+                        <td>@book.Title</td>
+                        <td>@book.Author</td>
+                        <td>@book.ISBN</td>
+                        <td>@book.PublishedYear</td>
+                        <td>
+                            @if (book.IsAvailable)
+                            {
+                                <span class="badge bg-success">Tillgänglig</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Utlånad</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="books/@book.Id" class="action-btn-sm">Detaljer</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {

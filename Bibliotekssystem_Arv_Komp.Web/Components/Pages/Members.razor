@@ -22,37 +22,39 @@ else if (!members.Any())
 }
 else
 {
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Medlems-ID</th>
-                <th>Namn</th>
-                <th>E-post</th>
-                <th>Medlem sedan</th>
-                <th>Aktiva lån</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var m in members)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
                 <tr>
-                    <td>@m.MemberId</td>
-                    <td>@m.Name</td>
-                    <td>@m.Email</td>
-                    <td>@m.MemberSince.ToString("yyyy-MM-dd")</td>
-                    <td>
-                        <span class="badge @(m.ActiveLoans > 0 ? "bg-warning" : "bg-secondary")">
-                            @m.ActiveLoans
-                        </span>
-                    </td>
-                    <td>
-                        <a href="members/@m.Id" class="action-btn-sm">Detaljer</a>
-                    </td>
+                    <th>Medlems-ID</th>
+                    <th>Namn</th>
+                    <th>E-post</th>
+                    <th>Medlem sedan</th>
+                    <th>Aktiva lån</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var m in members)
+                {
+                    <tr>
+                        <td>@m.MemberId</td>
+                        <td>@m.Name</td>
+                        <td>@m.Email</td>
+                        <td>@m.MemberSince.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <span class="badge @(m.ActiveLoans > 0 ? "bg-warning" : "bg-secondary")">
+                                @m.ActiveLoans
+                            </span>
+                        </td>
+                        <td>
+                            <a href="members/@m.Id" class="action-btn-sm">Detaljer</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {

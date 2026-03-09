@@ -447,33 +447,87 @@ tr.table-danger > td {
         text-align: center;
     }
 
+    .home-topbar-left,
     .home-topbar-right {
         text-align: center;
+        font-size: 0.75rem;
+    }
+
+    .home-logo {
+        font-size: 2rem;
+        letter-spacing: 0.08em;
     }
 
     .home-nav {
         flex-wrap: wrap;
-        gap: 1rem;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+        font-size: 0.85rem;
     }
 
     .home-hero {
         flex-direction: column;
         min-height: auto;
+        margin-top: 1rem;
     }
 
     .home-hero-left {
-        padding: 2rem 0;
+        padding: 1.5rem 0;
     }
 
     .home-hero-title {
+        font-size: 1.8rem;
+    }
+
+    .home-dot {
         font-size: 2rem;
     }
 
     .home-hero-right {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .home-stats-grid {
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .home-stat-card {
+        padding: 1rem;
+    }
+
+    .home-stat-number {
+        font-size: 1.8rem;
+    }
+
+    .home-stat-label {
+        font-size: 0.7rem;
     }
 
     .home-actions {
         flex-direction: column;
+    }
+
+    .home-action-btn {
+        font-size: 0.75rem;
+    }
+
+    /* Page headers: stacka på mobil */
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    /* Tabeller: minska fontstorlek */
+    .table {
+        font-size: 0.8rem;
+    }
+
+    .table thead th {
+        font-size: 0.75rem;
     }
 }
