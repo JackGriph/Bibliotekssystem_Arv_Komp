@@ -48,7 +48,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var book in books)
+                @foreach (var book in PagedBooks)
                 {
                     <tr>
                         <td>@book.Title</td>
@@ -73,6 +73,27 @@ else
             </tbody>
         </table>
     </div>
+
+    @if (TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GoToPage(currentPage - 1)">&laquo;</button>
+                </li>
+                @for (int i = 1; i <= TotalPages; i++)
+                {
+                    var p = i;
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(p)">@p</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage == TotalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GoToPage(currentPage + 1)">&raquo;</button>
+                </li>
+            </ul>
+        </nav>
+    }
 }
 
 @code {
@@ -81,6 +102,11 @@ else
     private string searchTerm = "";
     private string sortColumn = "title";
     private bool sortAscending = true;
+    private int currentPage = 1;
+    private const int PageSize = 10;
+
+    private int TotalPages => books == null || books.Count == 0 ? 1 : (int)Math.Ceiling(books.Count / (double)PageSize);
+    private List<BookDto> PagedBooks => books?.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList() ?? new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,6 +125,13 @@ else
             ).ToList();
 
         books = ApplySort(filtered);
+        currentPage = 1;
+    }
+
+    private void GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages)
+            currentPage = page;
     }
 
     private void SortBy(string column)

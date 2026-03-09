@@ -35,7 +35,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var m in members)
+                @foreach (var m in PagedMembers)
                 {
                     <tr>
                         <td>@m.MemberId</td>
@@ -55,14 +55,45 @@ else
             </tbody>
         </table>
     </div>
+
+    @if (TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GoToPage(currentPage - 1)">&laquo;</button>
+                </li>
+                @for (int i = 1; i <= TotalPages; i++)
+                {
+                    var p = i;
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(p)">@p</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage == TotalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GoToPage(currentPage + 1)">&raquo;</button>
+                </li>
+            </ul>
+        </nav>
+    }
 }
 
 @code {
     private List<MemberDto>? members;
+    private int currentPage = 1;
+    private const int PageSize = 10;
+
+    private int TotalPages => members == null || members.Count == 0 ? 1 : (int)Math.Ceiling(members.Count / (double)PageSize);
+    private List<MemberDto> PagedMembers => members?.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList() ?? new();
 
     protected override async Task OnInitializedAsync()
     {
         members = await Http.GetFromJsonAsync<List<MemberDto>>("api/members");
     }
 
+    private void GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages)
+            currentPage = page;
+    }
 }

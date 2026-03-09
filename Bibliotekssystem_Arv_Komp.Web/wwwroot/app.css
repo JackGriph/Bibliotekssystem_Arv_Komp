@@ -199,6 +199,30 @@ h1:focus {
     text-decoration: none;
 }
 
+/* Paginering */
+.pagination .page-link {
+    color: var(--brown);
+    border-color: #c4b5ad;
+    font-size: 0.85rem;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--teal-light);
+    border-color: var(--teal);
+    color: var(--brown);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #c4b5ad;
+    border-color: #e0d6d0;
+}
+
 /* Tabeller */
 .table {
     font-size: 0.9rem;

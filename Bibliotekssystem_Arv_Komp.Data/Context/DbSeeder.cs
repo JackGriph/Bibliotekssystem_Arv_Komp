@@ -26,7 +26,23 @@ public static class DbSeeder
             new Book("978-1-4919-1889-0", "You Don't Know JS: Up & Going", "Kyle Simpson", 2015, 88),
             new Book("978-0-201-53082-7", "The Mythical Man-Month", "Frederick P. Brooks Jr.", 1975, 322),
             new Book("978-0-452-28423-4", "1984", "George Orwell", 1949, 328),
-            new Book("978-0-14-044913-6", "Crime and Punishment", "Fyodor Dostoevsky", 1866, 671)
+            new Book("978-0-14-044913-6", "Crime and Punishment", "Fyodor Dostoevsky", 1866, 671),
+            new Book("978-0-06-112008-4", "To Kill a Mockingbird", "Harper Lee", 1960, 281),
+            new Book("978-0-7432-7356-5", "The Great Gatsby", "F. Scott Fitzgerald", 1925, 180),
+            new Book("978-0-14-028329-7", "The Catcher in the Rye", "J.D. Salinger", 1951, 234),
+            new Book("978-0-06-093546-7", "To the Lighthouse", "Virginia Woolf", 1927, 209),
+            new Book("978-0-14-118776-1", "One Hundred Years of Solitude", "Gabriel Garcia Marquez", 1967, 417),
+            new Book("978-0-7432-7357-2", "Brave New World", "Aldous Huxley", 1932, 311),
+            new Book("978-91-29-72350-5", "Pippi Langstrump", "Astrid Lindgren", 1945, 160),
+            new Book("978-91-29-72351-2", "Ronja Rovardotter", "Astrid Lindgren", 1981, 235),
+            new Book("978-0-13-110362-7", "The C Programming Language", "Brian W. Kernighan", 1988, 272),
+            new Book("978-0-13-468599-8", "Domain-Driven Design", "Eric Evans", 2003, 560),
+            new Book("978-0-321-12521-7", "Test Driven Development", "Kent Beck", 2002, 220),
+            new Book("978-0-596-51774-1", "Learning Python", "Mark Lutz", 2013, 1648),
+            new Book("978-0-13-235088-1", "Agile Software Development", "Robert C. Martin", 2002, 529),
+            new Book("978-0-321-14653-3", "Continuous Delivery", "Jez Humble", 2010, 512),
+            new Book("978-91-0-012345-6", "Kallocain", "Karin Boye", 1940, 200),
+            new Book("978-91-0-054321-0", "Doktor Glas", "Hjalmar Soderberg", 1905, 176)
         };
 
         foreach (var book in seedBooks)
