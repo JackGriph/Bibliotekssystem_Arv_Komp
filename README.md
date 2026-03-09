@@ -59,9 +59,10 @@ Bibliotekssystem_Arv_Komp.Web/         # Blazor Server-webbapplikation
 │       └── Loans.razor                # Utlåning med EditForm-validering (B.4)
 └── Program.cs                         # DI-konfiguration, API-mappning och seed
 
-Bibliotekssystem_Arv_Komp.Test/        # xUnit-tester (22 tester totalt)
+Bibliotekssystem_Arv_Komp.Test/        # xUnit + bUnit-tester (25 tester totalt)
 ├── BibliotekssytemTest.cs             # Del 1: 12 tester (modeller, sökning, statistik)
-└── Del2Tests.cs                       # Del 2: 10 tester (repository, CRUD, integration)
+├── Del2Tests.cs                       # Del 2: 10 tester (repository, CRUD, integration)
+└── BlazorComponentTests.cs            # bUnit: 3 komponenttester (Books, Members, filtrering)
 ```
 
 ## OOP-koncept
@@ -98,7 +99,7 @@ Blazor-sidor  →  HttpClient  →  REST API (Controllers)  →  Services / Repo
 - **TPH** (Table-Per-Hierarchy) för arvshierarkin `LibraryItem` → `Book`
 - **Repository Pattern** med interfaces och implementationer (Book, Member, Loan)
 - **Service Layer** med `ILoanService` / `LoanService` for affärslogik (max 3 lån, tillgänglighetskontroll)
-- Seed data (14 böcker + 3 medlemmar) skapas automatiskt vid första körning via `DbSeeder`
+- Seed data (30 böcker + 3 medlemmar) skapas automatiskt vid första körning via `DbSeeder`
 
 ### REST API
 - 4 controllers: Books, Members, Loans, Stats
@@ -120,10 +121,11 @@ Blazor-sidor  →  HttpClient  →  REST API (Controllers)  →  Services / Repo
 | **ISP** | Separata interfaces: `IBookRepository`, `IMemberRepository`, `ILoanRepository` |
 | **DIP** | Controllers och Services beror på interfaces, inte konkreta klasser |
 
-### Tester Del 2 (10 st)
+### Tester Del 2 (13 st)
 - **Repository/DbContext** (4 tester): GetAll, GetByISBN, Search, TPH-lagring
 - **Databasoperationer CRUD** (3 tester): Add, Update, Delete
 - **Integration EF + affärslogik** (3 tester): Skapa lån, returnera lån, max-lån-gräns
+- **bUnit komponenttester** (3 tester): Books renderas korrekt, sökfiltrering fungerar, Members renderas korrekt
 
 ## Köra projektet
 
