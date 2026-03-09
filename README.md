@@ -74,6 +74,17 @@ Bibliotekssystem_Arv_Komp.Test/        # xUnit-tester (22 tester totalt)
 | **Komposition** | `ItemCatalog` innehåller `LibraryItem`, `LoanManager` hanterar `Loan` |
 | **Inkapsling** | `Member.Loans` exponeras som `IReadOnlyList<Loan>` |
 
+## Screenshots
+
+### Startsida
+![Startsida](screenshots/home.png)
+
+### Boklista
+![Böcker](screenshots/books.png)
+
+### Utlåning
+![Utlåning](screenshots/loans.png)
+
 ## Del 2: EF Core, Blazor & REST API
 
 ### Arkitektur
